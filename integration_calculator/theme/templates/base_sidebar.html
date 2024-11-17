@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<button data-drawer-target="sidebar" data-drawer-toggle="sidebar" aria-controls="sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+    <span class="sr-only">Open sidebar</span>
+    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+    </svg>
+ </button>
+<aside id="sidebar" class="fixed top-0 left-0  w-80 h-screen transition-transform -translate-x-full sm:translate-x-0">
+    <div id="sidebar-header" class="p-2 border-r-2 border-l-2 border-b-2">
+        <p class="text-lg text-left font-semibold">{% block sidebar_header %}{% endblock %}</p>
+    </div>
+    <div id="sidebar-content" class="p-2 w-full h-full overflow-y-clip border-r-2 border-l-2 border-b-2 text-left">
+        <form method="POST">
+            {% csrf_token %}
+            <div id="row" class="flex items-center gap-2 m-2">
+                <label for="n" class="w-[15%]">n =</label>
+                <input type="number" min=0 name="n" id="n" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Jumlah pia" required/>
+            </div>
+            <div id="row" class="flex items-center gap-2 m-2 text-left">
+                <p class="w-full"> Masukkan nilai dalam format: \[ \int_{a}^{b} f(x) dx\] </p>
+            </div>
+            <div id="row" class="flex items-center gap-2 m-2">
+                <label for="a" class="w-[15%]">a =</label>
+                <input type="text" name="a" id="a" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Batas bawah" required/>
+            </div>
+            <div id="row" class="flex items-center gap-2 m-2">
+                <label for="b" class="w-[15%]">b =</label>
+                <input type="text" name="b" id="b" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Batas atas" required/>
+            </div>
+            <div id="row" class="flex items-center gap-2 m-2">
+                <label for="fx" class="w-[15%]">f(x) =</label>
+                <input type="text" name="fx" id="fx" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Persamaan" required/>
+            </div>
+
+            <div id="row" class="flex items-center gap-2 m-2 mt-4 w-full">
+                <button type="submit" class="text-white w-full bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Hitung</button>
+            </div>
+        </form>
+    </div>
+</aside>
+
+<div id="output-section" class="p-4 sm:ml-64 lg:ml-32">
+    <h2 class="text-xl font-semibold">Output</h2>
+    <div id="output" class="text-gray-800 mt-2"></div>
+</div>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const output = document.getElementById("output");
+    
+        form.addEventListener("submit", async function (e) {
+        e.preventDefault(); // Prevent the form from reloading the page
+    
+        // Collect form data
+        const formData = new FormData(form);
+    
+        try {
+            // Send POST request to the backend
+            const response = await fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+            },
+            });
+    
+            if (response.ok) {
+            const data = await response.text();
+            output.innerHTML = `<p>${data}</p>`; // Render the response
+            } else {
+            output.innerHTML = `<p class="text-red-500">An error occurred.</p>`;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            output.innerHTML = `<p class="text-red-500">An error occurred.</p>`;
+        }
+        });
+    });
+    </script>
+</div>
+{% endblock content %}
