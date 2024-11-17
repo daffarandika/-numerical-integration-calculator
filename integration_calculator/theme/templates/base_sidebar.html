@@ -14,10 +14,6 @@
     <div id="sidebar-content" class="p-2 w-full h-full overflow-y-clip border-r-2 border-l-2 border-b-2 text-left">
         <form method="POST">
             {% csrf_token %}
-            <div id="row" class="flex items-center gap-2 m-2">
-                <label for="n" class="w-[15%]">n =</label>
-                <input type="number" min=0 name="n" id="n" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Jumlah pia" required/>
-            </div>
             <div id="row" class="flex items-center gap-2 m-2 text-left">
                 <p class="w-full"> Masukkan nilai dalam format: \[ \int_{a}^{b} f(x) dx\] </p>
             </div>
@@ -33,9 +29,57 @@
                 <label for="fx" class="w-[15%]">f(x) =</label>
                 <input type="text" name="fx" id="fx" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Persamaan" required/>
             </div>
+            <div id="row" class="flex items-center gap-2 m-2 w-full justify-center">
+                <div class="inline-flex h-9 w-full items-center justify-center rounded-lg bg-gray-100 p-1 sm:w-auto">
+                    <button type="button" aria-disabled="false"
+                    class="group inline-flex items-center justify-center whitespace-nowrap py-2 align-middle font-semibold transition-all duration-300 ease-in-out disabled:cursor-not-allowed stroke-blue-700 min-w-[32px] gap-1.5 text-xs disabled:stroke-slate-400 disabled:text-slate-400 hover:stroke-blue-950 hover:text-blue-950 h-7 text-slate-950 w-full rounded-md bg-white px-3 drop-shadow sm:w-auto"
+                    id="n">
+                    <div>n</div>
+                    </button>
+                
+                    <button type="button" aria-disabled="false"
+                    class="group inline-flex items-center justify-center whitespace-nowrap rounded-lg py-2 align-middle font-semibold transition-all duration-300 ease-in-out disabled:cursor-not-allowed stroke-blue-700 min-w-[32px] gap-1.5 text-xs disabled:stroke-slate-400 disabled:text-slate-400 hover:stroke-blue-950 hover:text-blue-950 h-7 w-full bg-transparent px-3 text-slate-600 sm:w-auto"
+                    id="delta_x">
+                    <div>\[ \Delta x \]</div>
+                    </button>
+                </div>
+            </div>
+            <div id="row" class="flex items-center gap-2 m-2">
+                <label for="n" id="var-label" class="w-[15%]">n =</label>
+                <input type="number" id="var-input" min=0 name="n" id="n" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Jumlah pia" required/>
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                  const inactiveTabClassName = "bg-transparent";
+                  const activeTabClassName = "rounded-md bg-white shadow";
+                  const buttons = Array.from(document.querySelectorAll('button')).filter(btn => btn.id !== "submit-button");
+                  buttons.forEach((button, index) => {
+                    button.addEventListener("click", function() {
+                      buttons.forEach((b) => {
+                        b.classList.remove(...activeTabClassName.split(/\s+/));
+                        b.classList.add(...inactiveTabClassName.split(/\s+/));
+                      });
+                      button.classList.add(...activeTabClassName.split(/\s+/));
+                      button.classList.remove(...inactiveTabClassName.split(/\s+/));
 
+                      const selectedText = button.innerText;
+                      const selectedId = button.id;
+
+                      const varInput = document.getElementById("var-input");
+                      const varLabel = document.getElementById("var-label");
+
+                      varInput.placeholder = selectedText;
+                      varInput.name = selectedId;
+
+                      varLabel.innerText = selectedText;
+
+
+                    });
+                  });
+                });
+              </script>
             <div id="row" class="flex items-center gap-2 m-2 mt-4 w-full">
-                <button type="submit" class="text-white w-full bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Hitung</button>
+                <button type="submit" id="submit-button" class="text-white w-full bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Hitung</button>
             </div>
         </form>
     </div>
@@ -52,13 +96,11 @@
         const output = document.getElementById("output");
     
         form.addEventListener("submit", async function (e) {
-        e.preventDefault(); // Prevent the form from reloading the page
+        e.preventDefault();
     
-        // Collect form data
         const formData = new FormData(form);
     
         try {
-            // Send POST request to the backend
             const response = await fetch(form.action, {
             method: "POST",
             body: formData,
@@ -69,7 +111,7 @@
     
             if (response.ok) {
             const data = await response.text();
-            output.innerHTML = `<p>${data}</p>`; // Render the response
+            output.innerHTML = `<p>${data}</p>`; 
             } else {
             output.innerHTML = `<p class="text-red-500">An error occurred.</p>`;
             }
