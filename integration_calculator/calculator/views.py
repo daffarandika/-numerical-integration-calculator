@@ -15,40 +15,74 @@ def index(request):
     return render(request, 'base_sidebar.html')
 
 def trapesium(request):
+    context = {"result": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": ""}
+    
     if request.method == "POST":
         try:
-            n = eval(request.POST.get("n"))
-            a = eval(request.POST.get("a"))
-            b = eval(request.POST.get("b"))
+            a = request.POST.get("a")
+            b = request.POST.get("b")
+            fx = request.POST.get("fx")
+            context.update({"a": a, "b": b, "fx": fx})
 
-            f_str = str(request.POST.get("fx"))
-            e_symbol = symbols("e")
-            pi_symbol = symbols("pi")
+            if request.POST.get("n") and not request.POST.get("delta_x"):
+                n = eval(request.POST.get("n"))
+                context["n"] = n
+                
+                e_symbol = symbols("e")
+                pi_symbol = symbols("pi")
+                f = sympify(fx)
+                fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
+                
+                result = integral_trapesium_n(eval(a), eval(b), n, fx_sym)
+                context["result"] = result
 
-            f = sympify(f_str)
-            fx = f.subs(e_symbol, e).subs(pi_symbol, pi)
+            elif request.POST.get("delta_x") and not request.POST.get("n"):
+                delta_x = eval(request.POST.get("delta_x"))
+                context["delta_x"] = delta_x
+                
+                e_symbol = symbols("e")
+                pi_symbol = symbols("pi")
+                f = sympify(fx)
+                fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
+                
+                result = integral_trapesium_delta_x(eval(a), eval(b), delta_x, fx_sym)
+                context["result"] = result
 
-            result = integral_trapesium(a,b,n,fx)
-            return HttpResponse(f"Hasilnya: {result}")
-            
-
+            else:
+                context["result"] = "Invalid input"
+        
         except Exception as err:
-            return HttpResponse(f"Error: {str(err)}", status=400)
+            context["result"] = f"Error: {str(err)}"
 
-    return render(request, 'trapesium.html')
+    print(context)
+    return render(request, 'trapesium.html', context)
 
-def integral_trapesium(a, b, n, f):
-    def fx(x):
-        return f.subs(symbols("x"), x)
+def integral_trapesium_n(a, b, n, fx):
+    def f(x):
+        return fx.subs(symbols("x"), x)
     
     delta_x = (b - a)/(n)
     x = linspace(a,b,n)
     
-    jumlah =  fx(a) + fx(b)
+    jumlah =  f(a) + f(b)
     for i in range(1, n-1):
-        jumlah += 2 * fx(x[i])
+        jumlah += 2 * f(x[i])
 
     hasil = (delta_x/2) * jumlah
 
     return hasil
 
+def integral_trapesium_delta_x(a, b, delta_x, fx):
+    def f(x):
+        return fx.subs(symbols("x"), x)
+    
+    n = int((b - a)/(delta_x))
+    x = linspace(a,b,n)
+    
+    jumlah =  f(a) + f(b)
+    for i in range(1, n-1):
+        jumlah += 2 * f(x[i])
+
+    hasil = (delta_x/2) * jumlah
+
+    return hasil
