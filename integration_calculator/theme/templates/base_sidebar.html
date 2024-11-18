@@ -27,7 +27,7 @@
             </div>
             <div id="row" class="flex items-center gap-2 m-2">
                 <label for="fx" class="w-[15%]">f(x) =</label>
-                <input type="text" name="fx" id="fx" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Persamaan" required value="{{ c }}"/>
+                <input type="text" name="fx" id="fx" class="bg-gray-50 w-[85%] border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block p-2.5" placeholder="Persamaan" required value="{{ fx }}"/>
             </div>
             <div id="row" class="flex items-center gap-2 m-2 w-full justify-center">
                 <div class="inline-flex h-9 w-full items-center justify-center rounded-lg bg-gray-100 p-1 sm:w-auto">
@@ -93,7 +93,13 @@
 
 <div id="output-section" class="p-4 sm:ml-64 lg:ml-48">
     <h2 class="text-xl font-semibold">Output</h2>
-    <div id="output" class="text-gray-800 mt-2">{{ result }}</div>
+    <div id="output" class="text-gray-800 mt-2 h-full">{{ result }}</div>
+    <div class="card my-3" style="border-radius: 15px;">
+    <div class="card-header fw-bold text-left">Graf</div>
+        <div class="card-body">
+            {{ fig | safe }}
+        </div>
+    </div>
 </div>
     
     <script>
@@ -123,5 +129,5 @@
        });
     });
     </script>
-</div>
+
 {% endblock content %}
