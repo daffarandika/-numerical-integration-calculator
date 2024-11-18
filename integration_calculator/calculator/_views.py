@@ -7,7 +7,6 @@ from numpy import pi
 from numpy import sin
 from numpy import tan
 from sympy import symbols, sympify
-from sympy.core.sympify import SympifyError
 
 
 # Create your views here.
