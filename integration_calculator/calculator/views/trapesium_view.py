@@ -4,6 +4,7 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 import math
+from scipy.integrate import quad
 from plotly.io import to_html
 from numpy import e
 from numpy import linspace
@@ -217,9 +218,8 @@ class TrapesiumView(View):
 
 
     def calc_real_integral(self, a,b,fx):
-        def f(x):
-            return fx.subs(symbols("x"), x)
-        return f(b) - f(a)
+        f = lambdify("x", fx, modules=["scipy"])
+        return quad(f, a, b)[0]
 
     def calc_error(self, real, calculated):
         return f"{((real-calculated)/real) * 100}%"

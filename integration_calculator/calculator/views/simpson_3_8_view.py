@@ -12,9 +12,9 @@ from numpy import linspace
 from numpy import pi
 from sympy import symbols, sympify, lambdify
 
-class Simpson_1_3(View):
+class Simpson_3_8(View):
     context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": ""}
-    template_file = 'simpson_1_3.html'
+    template_file = 'simpson_3_8.html'
 
     def get(self, request):
         return render(request, self.template_file, self.context)
@@ -28,6 +28,7 @@ class Simpson_1_3(View):
 
             if request.POST.get("n") and not request.POST.get("delta_x"):
                 n = eval(request.POST.get("n"))
+
                 self.context["n"] = n
                 
                 e_symbol = symbols("e")
@@ -35,7 +36,7 @@ class Simpson_1_3(View):
                 f = sympify(fx)
                 fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
                 
-                self.integral_simpson_1_3_n(eval(a), eval(b), n, fx_sym)
+                self.integral_simpson_3_8_n(eval(a), eval(b), n, fx_sym)
 
             elif request.POST.get("delta_x") and not request.POST.get("n"):
                 delta_x = eval(request.POST.get("delta_x"))
@@ -46,7 +47,7 @@ class Simpson_1_3(View):
                 f = sympify(fx)
                 fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
                 
-                self.integral_simpson_1_3_delta_x(eval(a), eval(b), delta_x, fx_sym)
+                self.integral_simpson_3_8_delta_x(eval(a), eval(b), delta_x, fx_sym)
 
             else:
                 self.context["hasil"] = "Invalid input"
@@ -57,34 +58,32 @@ class Simpson_1_3(View):
         return render(request, self.template_file, self.context)
 
 
-    def integral_simpson_1_3_n(self, a, b, n, fx, graph=True):
-        # menghitung nilai integral numerik
-        def f(x):
-            return fx.subs(symbols("x"), x)
-        
-        if n == 1:
-            n = 2
+    def integral_simpson_3_8_n(self, a, b, n, fx, graph=True):
 
-        if n % 2 != 0:
-            self.context["hasil"] = "gagal, jumlah pia harus genap"
+        if n % 3 != 0:
+            self.context["hasil"] = "gagal, jumlah pia harus kelipatan tiga"
             self.context["error"] = ""
             self.context["graf"] = ""
             return
 
+        # menghitung nilai integral numerik
+        def f(x):
+            return fx.subs(symbols("x"), x)
+        
         delta_x = (b - a)/(n)
         print(f"{delta_x=}")
         x_hitung = linspace(a,b,n+1)
         
         jumlah =  f(a) + f(b)
         for i in range(1, n):
-            if i % 2 == 0:
+            if i % 3 == 0:
                 jumlah += 2*f(x_hitung[i])
             else:
-                jumlah += 4*f(x_hitung[i])
+                jumlah += 3*f(x_hitung[i])
 
         print(f"INI JUMLAH{jumlah=}")
 
-        hasil = (delta_x/3) * jumlah
+        hasil = ((3*delta_x)/8) * jumlah
         print(hasil)
         self.context["hasil"] = hasil
 
@@ -96,7 +95,7 @@ class Simpson_1_3(View):
         # menggambar graf
         if graph:
             y_hitung = lambdify("x", fx, modules=["numpy"])(x_hitung)
-            f_hitung_gambar = interp1d(x_hitung, y_hitung, kind="quadratic")
+            f_hitung_gambar = interp1d(x_hitung, y_hitung, kind="cubic")
             x_real = linspace(a,b,100)
             x_real_padding = linspace(a-1,b+1,100)
             y_real = lambdify("x", fx, modules=["numpy"])(x_real)
@@ -152,18 +151,16 @@ class Simpson_1_3(View):
 
 
 
-    def integral_simpson_1_3_delta_x(self, a, b, delta_x, fx, graph=True):
+    def integral_simpson_3_8_delta_x(self, a, b, delta_x, fx, graph=True):
+
         # menghitung nilai integral numerik
         def f(x):
             return fx.subs(symbols("x"), x)
         
         n = math.ceil((b - a)/(delta_x))
 
-        if n == 1:
-            n = 2
-
-        if n % 2 != 0:
-            self.context["hasil"] = "gagal, jumlah pia harus genap"
+        if n % 3 != 0:
+            self.context["hasil"] = "gagal, jumlah pia harus kelipatan tiga"
             self.context["error"] = ""
             self.context["graf"] = ""
             return
@@ -172,17 +169,12 @@ class Simpson_1_3(View):
         
         jumlah =  f(a) + f(b)
         for i in range(1, n):
-            print(f"{i=}")
-            print(f"{x_hitung[i]=}")
-            print(f"{f(x_hitung[i])=}")
-            if i % 2 == 0:
+            if i % 3 == 0:
                 jumlah += 2*f(x_hitung[i])
             else:
-                jumlah += 4*f(x_hitung[i])
+                jumlah += 3*f(x_hitung[i])
 
-        print(f"{jumlah} <== ini jumlah")
-
-        hasil = (delta_x/3) * jumlah
+        hasil = ((3*delta_x)/8) * jumlah
 
         self.context["hasil"] = hasil
 
