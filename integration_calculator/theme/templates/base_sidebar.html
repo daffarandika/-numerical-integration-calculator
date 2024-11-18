@@ -12,7 +12,7 @@
         <p class="text-lg text-left font-semibold">{% block sidebar_header %}{% endblock %}</p>
     </div>
     <div id="sidebar-content" class="p-2 w-full h-full overflow-y-clip border-r-2 border-l-2 border-b-2 text-left">
-        <form action="/trapesium" method="POST">
+        <form action="/{% block action %}{% endblock action %}" method="POST">
             {% csrf_token %}
             <div id="row" class="flex items-center gap-2 m-2 text-left">
                 <p class="w-full"> Masukkan nilai dalam format: \[ \int_{a}^{b} f(x) dx\] </p>

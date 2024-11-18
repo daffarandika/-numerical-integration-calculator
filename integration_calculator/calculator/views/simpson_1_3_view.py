@@ -4,15 +4,16 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 import math
+from scipy.interpolate import interp1d, CubicSpline
 from plotly.io import to_html
 from numpy import e
 from numpy import linspace
 from numpy import pi
 from sympy import symbols, sympify, lambdify
 
-class TrapesiumView(View):
+class Simpson_1_3(View):
     context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": ""}
-    template_file = 'trapesium.html'
+    template_file = 'simpson_1_3.html'
 
     def get(self, request):
         return render(request, self.template_file, self.context)
@@ -33,7 +34,7 @@ class TrapesiumView(View):
                 f = sympify(fx)
                 fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
                 
-                self.integral_trapesium_n(eval(a), eval(b), n, fx_sym)
+                self.integral_simpson_1_3_n(eval(a), eval(b), n, fx_sym)
 
             elif request.POST.get("delta_x") and not request.POST.get("n"):
                 delta_x = eval(request.POST.get("delta_x"))
@@ -44,7 +45,7 @@ class TrapesiumView(View):
                 f = sympify(fx)
                 fx_sym = f.subs(e_symbol, e).subs(pi_symbol, pi)
                 
-                self.integral_trapesium_delta_x(eval(a), eval(b), delta_x, fx_sym)
+                self.integral_simpson_1_3_delta_x(eval(a), eval(b), delta_x, fx_sym)
 
             else:
                 self.context["hasil"] = "Invalid input"
@@ -52,10 +53,10 @@ class TrapesiumView(View):
         except Exception as err:
             self.context["hasil"] = f"Error: {str(err)}"
 
-        return render(request, 'trapesium.html', self.context)
+        return render(request, self.template_file, self.context)
 
 
-    def integral_trapesium_n(self, a, b, n, fx, graph=True):
+    def integral_simpson_1_3_n(self, a, b, n, fx, graph=True):
         # menghitung nilai integral numerik
         def f(x):
             return fx.subs(symbols("x"), x)
@@ -66,11 +67,14 @@ class TrapesiumView(View):
         
         jumlah =  f(a) + f(b)
         for i in range(1, n):
-            jumlah += 2 * f(x_hitung[i])
+            if i % 2 == 0:
+                jumlah += 2*f(x_hitung[i])
+            else:
+                jumlah += 4*f(x_hitung[i])
 
-        print(jumlah)
+        print(f"INI JUMLAH{jumlah=}")
 
-        hasil = (delta_x/2) * jumlah
+        hasil = (delta_x/3) * jumlah
         print(hasil)
         self.context["hasil"] = hasil
 
@@ -82,6 +86,7 @@ class TrapesiumView(View):
         # menggambar graf
         if graph:
             y_hitung = lambdify("x", fx, modules=["numpy"])(x_hitung)
+            f_hitung_gambar = interp1d(x_hitung, y_hitung, kind="quadratic")
             x_real = linspace(a,b,100)
             x_real_padding = linspace(a-1,b+1,100)
             y_real = lambdify("x", fx, modules=["numpy"])(x_real)
@@ -94,7 +99,8 @@ class TrapesiumView(View):
             fig.add_trace(
                 go.Scatter(
                     x=x_hitung,
-                    y=y_hitung,
+                    y=f_hitung_gambar(x_hitung),
+                    line_shape="spline",
                     fill="tozeroy",
                     name="nilai hitung",
                     line=dict(color='red')
@@ -136,21 +142,26 @@ class TrapesiumView(View):
 
 
 
-    def integral_trapesium_delta_x(self, a, b, delta_x, fx, graph=True):
+    def integral_simpson_1_3_delta_x(self, a, b, delta_x, fx, graph=True):
         # menghitung nilai integral numerik
         def f(x):
             return fx.subs(symbols("x"), x)
         
-        n = math.ceil((b - a)/(delta_x))+1
-        x_hitung = linspace(a,b,n)
+        n = math.ceil((b - a)/(delta_x))
+        x_hitung = linspace(a,b,n+1)
         
         jumlah =  f(a) + f(b)
-        for i in range(1, n-1):
-            jumlah += 2 * f(x_hitung[i])
+        for i in range(1, n):
+            print(f"{i=}")
+            print(f"{x_hitung[i]=}")
+            if i % 2 == 0:
+                jumlah += 2*f(x_hitung[i])
+            else:
+                jumlah += 4*f(x_hitung[i])
 
-        print(jumlah)
+        print(f"{jumlah} <== ini jumlah")
 
-        hasil = (delta_x/2) * jumlah
+        hasil = (delta_x/3) * jumlah
 
         self.context["hasil"] = hasil
 
@@ -163,6 +174,7 @@ class TrapesiumView(View):
         # menggambar graf
         if graph:
             y_hitung = lambdify("x", fx, modules=["numpy"])(x_hitung)
+            f_hitung_gambar = interp1d(x_hitung, y_hitung, kind="quadratic")
             x_real = linspace(a,b,100)
             x_real_padding = linspace(a-1,b+1,100)
             y_real = lambdify("x", fx, modules=["numpy"])(x_real)
@@ -175,7 +187,8 @@ class TrapesiumView(View):
             fig.add_trace(
                 go.Scatter(
                     x=x_hitung,
-                    y=y_hitung,
+                    y=f_hitung_gambar(x_hitung),
+                    line_shape="spline",
                     fill="tozeroy",
                     name="nilai hitung",
                     line=dict(color='red')
@@ -211,7 +224,6 @@ class TrapesiumView(View):
                 )
             )
 
-
             self.context["fig"] = to_html(fig, full_html=False, default_width="50%", 
                         include_plotlyjs="cdn", div_id="ohlc")
 
@@ -221,5 +233,6 @@ class TrapesiumView(View):
             return fx.subs(symbols("x"), x)
         return f(b) - f(a)
 
+ 
     def calc_error(self, real, calculated):
         return f"{((real-calculated)/real) * 100}%"
