@@ -1,0 +1,64 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en" style="margin: 0;     padding: 0;     height: 100%;">
+<head>
+    {% load static %}
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/svg+xml" href="/plot.png" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Numerical Integration</title>
+	{% tailwind_css %}
+</head>
+<body class="h-full" style="margin: 0;     padding: 0;     height: 100%;">
+    <div class="h-full flex items-center justify-center">
+		<div class="w-full max-w-md p-4 bg-gray-800 border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+		   <div class="flow-root">
+				<div class="flex items-center justify-between mb-4">
+					<h5 class="text-xl font-bold leading-none text-white dark:text-white">Metode Integral Numerik</h5>
+				</div>
+			</div>
+				<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+					<li class="py-3 sm:py-4 bg-white rounded-sm">
+						<div class="flex items-center">
+							<div class="flex-1 min-w-0 ms-4">
+								<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+									<a href="/trapesium">Trapesium</a>
+								</p>
+							</div>
+						</div>
+					</li>
+					<li class="py-3 sm:py-4 bg-white rounded-sm">
+						<div class="flex items-center">
+							<div class="flex-1 min-w-0 ms-4">
+								<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+									<a href="/simpson_1_3">Simpson 1/3</a>
+								</p>
+							</div>
+						</div>
+					</li>
+					<li class="py-3 sm:py-4 bg-white rounded-sm">
+						<div class="flex items-center">
+							<div class="flex-1 min-w-0 ms-4">
+								<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+									<a href="/simpson_3_8">Simpson 3/8</a>
+								</p>
+							</div>
+						</div>
+					</li>
+					<li class="py-3 sm:py-4 bg-white rounded-sm">
+						<div class="flex items-center">
+							<div class="flex-1 min-w-0 ms-4">
+								<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+									<a href="/gauss_kuadratur">Gauss Kuadratur</a>
+								</p>
+							</div>
+						</div>
+					</li>
+				</ul>
+		   </div>
+		</div>
+		
+    </div>
+</body>
+</html>

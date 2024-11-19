@@ -12,7 +12,7 @@ from numpy import pi
 from sympy import symbols, sympify, lambdify
 
 class TrapesiumView(View):
-    context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": ""}
+    context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": "", "show_option": True}
     template_file = 'trapesium.html'
 
     def get(self, request):

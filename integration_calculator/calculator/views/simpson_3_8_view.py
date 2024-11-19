@@ -13,7 +13,7 @@ from numpy import pi
 from sympy import symbols, sympify, lambdify
 
 class Simpson_3_8(View):
-    context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": ""}
+    context = {"error": "", "hasil": "", "a": "", "b": "", "fx": "", "n": "", "delta_x": "", "fig": "", "show_option": True}
     template_file = 'simpson_3_8.html'
 
     def get(self, request):
